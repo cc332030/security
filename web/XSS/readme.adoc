@@ -1,0 +1,73 @@
+
+= XSS 跨站脚本攻击（Cross Site Scripting）
+:toc: right
+:toclevels: 4
+
+攻击者会用各种方式将恶意代码注入到其他用户的页面中。比如 <script>
+
+== 类型
+
+|===
+|类型 |存储区 |插入点 | 类型
+
+|存储型 XSS
+|后端数据库
+|HTML
+|服务端的安全漏洞
+
+|反射型 XSS
+|URL
+|HTML
+|服务端的安全漏洞
+
+|DOM 型 XSS
+|后端数据库/前端存储/URL
+|前端 JavaScript
+|前端 JavaScript 自身的安全漏洞
+
+|===
+
+== 预防
+
+=== 预防存储型和反射型 XSS 攻击
+
+. 纯前端渲染（）
+
+    前后端分离，即：页面数据分离
+
+. 转义 HTML
+
+    把 & < > " ' / 等字符转义掉
+
+=== 预防 DOM 型 XSS 攻击
+
+. 使用 .innerHTML、.outerHTML、document.write() 时要特别小心，不要把不可信的数据作为 HTML 插到页面上，而应尽量使用 .textContent、.setAttribute() 等
+
+. 如果用 Vue/React 技术栈，并且不使用 v-html/dangerouslySetInnerHTML 功能，就在前端 render 阶段避免 innerHTML、outerHTML 的 XSS 隐患。
+
+. DOM 中的内联事件监听器，如 location、onclick、onerror、onload、onmouseover 等，<a> 标签的 href 属性，JavaScript 的 eval()、setTimeout()、setInterval() 等，都能把字符串作为代码运行。如果不可信的数据拼接到字符串中传递给这些 API，很容易产生安全隐患，请务必避免。
+
+=== 其他 XSS 防范措施
+
+==== Content Security Policy
+严格的 CSP 在 XSS 的防范中可以起到以下的作用：
+
+. 禁止加载外域代码，防止复杂的攻击逻辑。
+. 禁止外域提交，网站被攻击后，用户的数据不会泄露到外域。
+. 禁止内联脚本执行（规则较严格，目前发现 GitHub 使用）。
+. 禁止未授权的脚本执行（新特性，Google Map 移动版在使用）。
+. 合理使用上报可以及时发现 XSS，利于尽快修复问题。
+
+==== 输入内容长度控制
+
+对于不受信任的输入，都应该限定一个合理的长度。虽然无法完全防止 XSS 发生，但可以增加 XSS 攻击的难度。
+
+==== 其他安全措施
+
+. HTTP-only Cookie: 禁止 JavaScript 读取某些敏感 Cookie，攻击者完成 XSS 注入后也无法窃取此 Cookie。
+. 验证码：防止脚本冒充用户提交危险操作。
+
+=== XSS 的检测
+
+. 使用通用 XSS 攻击字符串手动检测 XSS 漏洞。
+. 使用扫描工具自动检测 XSS 漏洞。
